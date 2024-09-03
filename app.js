@@ -1,8 +1,8 @@
 const express = require('express')
 const app = express()
 
-const cors = require('cors')
-app.use(cors())
+// const cors = require('cors')
+// app.use(cors())
 
 app.use(express.urlencoded({ extended: false }))
 app.use(express.json())
@@ -19,36 +19,31 @@ app.use((req, res, next) => {
 })
 
 // 封装 解析token中间件
+// const jwt = require('jsonwebtoken')
 const { expressjwt: expressJWT } = require('express-jwt')
 const config = require('./config')
 app.use(expressJWT({ secret: config.jwtSecretKey, algorithms: ['HS256'] })
   // .unless({ path: ['/api/login'] })
-  .unless({ path: [/^\/api\//] }) // /api开头的URL不需要token认证
+    .unless({ path: [/^\/api\//] }) // unless 不需要验证的URL
 )
 
 // router
-const router = require('./router/user')
+const router = require('./router')
 app.use('/api', router)
 
-const userinfoRouter = require('./router/userinfo')
-app.use('/my', userinfoRouter)
-
-const articleRouter = require('./router/article')
-app.use('/my/article', articleRouter)
-
-// 错误级别中间件
-const joi = require('@hapi/joi')
+// // 错误级别中间件
+// const joi = require('@hapi/joi')
 app.use((err, req, res, next) => {
   // 捕获身份认证失败的错误
   if (err.name === 'UnauthorizedError') return res.cc('身份认证失败')
   // 表单数据验证失败
-  if (err instanceof joi.ValidationError) return res.cc(err)
+  // if (err instanceof joi.ValidationError) return res.cc(err)
   // 未知错误
   res.cc(err)
 })
 
 
 
-app.listen('3007', () => {
-  console.log('http://127.0.0.1:3007')
+app.listen('80', () => {
+  console.log('http://127.0.0.1:80')
 })
